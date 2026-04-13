@@ -1,0 +1,65 @@
+{
+  "name": "grassomics",
+  "version": "1.0.0",
+  "description": "GrassOmics - Professional Bioinformatics Workstation for Forage",
+  "main": "dist/main/main/index.js",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"tsc -p tsconfig.node.json --watch\" \"wait-on tcp:5173 && electron .\"",
+    "build:main": "tsc -p tsconfig.node.json",
+    "build:renderer": "vite build",
+    "build": "npm run build:renderer && npm run build:main",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.2",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.6",
+    "lucide-react": "0.350.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-router-dom": "7.0.0",
+    "reactflow": "11.10.4",
+    "zustand": "5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.24",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "@vitejs/plugin-react": "5.0.0",
+    "concurrently": "8.2.2",
+    "cross-env": "7.0.3",
+    "electron": "31.0.0",
+    "electron-builder": "24.13.3",
+    "typescript": "5.5.4",
+    "vite": "8.0.0",
+    "wait-on": "7.2.0"
+  },
+  "build": {
+    "appId": "com.grassomics.app",
+    "productName": "GrassOmics",
+    "files": [
+      "dist/**/*"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "extraResources": [
+      {
+        "from": "engine",
+        "to": "engine",
+        "filter": ["**/*"]
+      }
+    ]
+  }
+}

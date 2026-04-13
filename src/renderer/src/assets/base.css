@@ -1,0 +1,43 @@
+:root {
+    /* Win11 现代极简色彩系统 - 深度重构版 */
+    --win-sidebar-bg: #F3F3F3;  /* 侧边栏及标题栏浅灰底色 */
+    --win-main-bg: #FFFFFF;     /* 右侧工作区纯白底色 */
+
+    --win-card: #FFFFFF;        /* 卡片底色 */
+    --win-card-hover: #F8F9FA;  /* 卡片悬浮色 */
+
+    --win-text: #333333;        /* 主文本色 */
+    --win-text-secondary: #5C5C5C; /* 次要文本色 */
+
+    --win-accent: #0067C0;      /* Win11 经典强调蓝 */
+    --win-accent-hover: #005A9E;
+
+    --win-border: #E5E5E5;      /* 细边框色 */
+    --win-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* 柔和阴影 */
+    --win-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12); /* 悬浮深阴影 */
+    --win-radius: 8px;          /* 统一圆角 */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    /* 整个网页的基础底色先设为白色，具体分割在 Layout 里做 */
+    background-color: var(--win-main-bg);
+    color: var(--win-text);
+    font-family: "Segoe UI", "Microsoft YaHei", -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+    overflow: hidden;
+}
+
+/* 沉浸式标题栏的隐形拖拽区域 */
+.titlebar-drag-region {
+    -webkit-app-region: drag;
+    height: 40px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    pointer-events: none;
+}

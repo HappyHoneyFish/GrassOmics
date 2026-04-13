@@ -1,0 +1,8 @@
+# 项目排除路径
+/dist
+/node_modules
+/.idea
+/engine/python
+# 项目排除路径
+/src/preload/index.d.ts
+/vite.config.js
