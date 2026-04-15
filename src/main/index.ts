@@ -4,30 +4,27 @@ import { electronApp, optimizer, is } from './utils'
 import { setupIpcHandlers } from './ipc_handlers'
 
 function createWindow(): void {
-    // 获取当前主显示器的工作区尺寸（不包含Windows底部任务栏）
     const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
 
-    // 算法：左右各留100px(约两指宽)，上下各留60px(约一指宽)
     const windowWidth = Math.floor(screenWidth - 200)
     const windowHeight = Math.floor(screenHeight - 120)
 
-    // 创建大厂 IDE 级别的主窗口
     const mainWindow = new BrowserWindow({
         width: windowWidth,
         height: windowHeight,
         minWidth: 1024,
         minHeight: 768,
-        center: true, // 强制居中，配合留白产生悬浮高级感
-        show: false,  // 先隐藏，等 React 渲染完毕再显示，避免白屏闪烁
-        autoHideMenuBar: true, // 隐藏传统菜单栏
-        // 启用 Win11 沉浸式标题栏
+        center: true,
+        show: false,
+        autoHideMenuBar: true,
         titleBarStyle: 'hidden',
         titleBarOverlay: {
-            color: '#F3F3F3', // 这里的颜色将与我们重构后的侧边栏灰色完美融为一体
+            color: '#F3F3F3',
             symbolColor: '#333333',
             height: 40
         },
         webPreferences: {
+            // 这个项目最大的难题就在于路径丢失。。。此处记个笔记
             // 注意：preload 路径保持不变，因为 tsconfig.node.json 将 preload 编译到 dist/main/preload/
             // __dirname (dist/main/main/) -> ../preload/ = dist/main/preload/
             preload: join(__dirname, '../preload/index.js'),
@@ -36,30 +33,27 @@ function createWindow(): void {
         }
     })
 
-    // 优雅地展示窗口
     mainWindow.on('ready-to-show', () => {
         mainWindow.show()
 
-        // ██████ 调试技巧 ██████
+        // 调试用的，打包之后经常白屏，很难查问题，哎。。。
         // 如果打包后仍然白屏，取消下面注释，安装后运行会自动打开开发者工具查看具体报错
+        // 用命令行运行程序也能看到报错信息
         // if (!is.dev) {
         //     mainWindow.webContents.openDevTools()
         // }
     })
 
-    // 拦截所有的 target="_blank" 链接
     mainWindow.webContents.setWindowOpenHandler((details) => {
         shell.openExternal(details.url)
         return { action: 'deny' }
     })
 
-    // 开发环境加载 Vite 端口，生产环境加载打包后的本地 HTML
     if (is.dev) {
         mainWindow.loadURL('http://localhost:5173')
-        // 自动打开开发者工具，大厂开发必备
         mainWindow.webContents.openDevTools()
     } else {
-        // ██████ 关键修复 ██████
+        // 路径问题！！！这里记个笔记
         // 原代码：join(__dirname, '../renderer/index.html')
         // 这会导致路径指向 dist/main/renderer/ (不存在)
         //
@@ -85,7 +79,6 @@ app.whenReady().then(() => {
         optimizer.watchWindowShortcuts(window)
     })
 
-    // 注册与 Python 通信的底层桥梁
     setupIpcHandlers()
 
     createWindow()

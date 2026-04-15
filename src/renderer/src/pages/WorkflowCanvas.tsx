@@ -1,14 +1,12 @@
 import { useState, useCallback, useRef } from 'react'
-import ReactFlow, { Background, Controls, MiniMap, applyNodeChanges, applyEdgeChanges, addEdge, Node, Edge, Connection, ReactFlowProvider, ReactFlowInstance } from 'reactflow'
+import ReactFlow, { Background, Controls, applyNodeChanges, applyEdgeChanges, addEdge, Node, Edge, Connection, ReactFlowProvider, ReactFlowInstance } from 'reactflow'
 import 'reactflow/dist/style.css'
-import { Play, Trash2, FileText, Database, Cpu, Microscope, Eraser, X, Download, CheckCircle2, Edit2 } from 'lucide-react'
+import { Play, FileText, Database, Cpu, Microscope, Eraser, X, CheckCircle2, Edit2 } from 'lucide-react'
 import { useAppStore } from '../store'
 import BlueprintNode from '../components/flow/BlueprintNode'
 import ReactECharts from 'echarts-for-react'
 
-// ==========================================
-// 1. 全量扩充的节点仓库库 (Data, Algo, Vis)
-// ==========================================
+
 const NODE_TEMPLATES = [
     // --- 数据源 ---
     { type: 'data', title: '表型矩阵 (CSV)', data: { title: '表型矩阵', category: 'data', inputs: [], outputs: [{ id: 'out', label: '矩阵输出' }], controls: [{ id: 'path', label: '本地文件路径', type: 'file', value: '', extensions: ['csv'] }] } },
@@ -32,7 +30,6 @@ const NODE_TEMPLATES = [
 
 const nodeTypes = { blueprint: BlueprintNode }
 
-// DAG 拓扑排序算法 (提取合法执行顺序)
 const getTopologicalSort = (nodes: Node[], edges: Edge[]) => {
     const inDegree: Record<string, number> = {}; const adjList: Record<string, string[]> = {}
     nodes.forEach(n => { inDegree[n.id] = 0; adjList[n.id] = [] })
@@ -87,9 +84,7 @@ function FlowCanvasInner() {
         setNodes(nds => nds.filter(n => !n.selected)); setEdges(eds => eds.filter(e => !e.selected))
     }
 
-    // ==========================================
-    // 3. 终极执行引擎与持久化写入
-    // ==========================================
+
     const handleRunWorkflow = async () => {
         if (nodes.length === 0) return showToast('画布为空，请先编排节点', 'warning')
         if (isRunning) return
@@ -119,7 +114,7 @@ function FlowCanvasInner() {
                 const typeLabel = targetNode.data.category === 'data' ? '[DATA]' : targetNode.data.category === 'algo' ? '[ALGO]' : '[VIS ]'
                 logs += `${typeLabel} 正在执行 => ${targetNode.data.title}...\n`; setDynamicLogs(logs)
 
-                await new Promise(resolve => setTimeout(resolve, 800)) // 模拟算力
+                await new Promise(resolve => setTimeout(resolve, 800))
 
                 logs += `        └─ 执行成功。\n`; setDynamicLogs(logs)
                 setNodes(nds => nds.map(n => n.id === nodeId ? { ...n, data: { ...n.data, status: 'success' } } : n))
@@ -130,8 +125,7 @@ function FlowCanvasInner() {
             setReportReady(true)
             showToast('流水线执行完毕！', 'success')
 
-            // ===== 核心：将报告持久化到 Store =====
-            // 智能判断报告类型
+
             let reportType: any = 'Workflow'
             if (nodes.some(n => n.data.title.includes('GWAS'))) reportType = 'GWAS'
             else if (nodes.some(n => n.data.title.includes('GS'))) reportType = 'GS'
@@ -154,12 +148,9 @@ function FlowCanvasInner() {
         } finally { setIsRunning(false) }
     }
 
-    // ==========================================
-    // 4. 按需渲染的高清顶刊图表库
-    // ==========================================
+
     const hasNode = (keyword: string) => nodes.some(n => n.data.title.includes(keyword))
 
-    // 1. 顶刊曼哈顿图 (NPG 配色 + 海量背景点)
     const getManhattan = () => {
         const bg: any[] = []; const chr = ['1','2','3','4','5','6','7']; let x = 0;
         chr.forEach(c => { for(let i=0;i<150;i++) bg.push([x+Math.random()*1000, Math.random()*3, c]); x+=1200; })
@@ -176,7 +167,6 @@ function FlowCanvasInner() {
         }
     }
 
-    // 2. 顶刊聚类热图 (RdYlBu 配色)
     const getHeatmap = () => {
         const data: any[] = []; for(let i=0;i<5;i++) for(let j=0;j<8;j++) data.push([i, j, (Math.random()*2)-1])
         return {
@@ -186,7 +176,6 @@ function FlowCanvasInner() {
         }
     }
 
-    // 3. 顶刊 GS 标记效应图 (AAAS 配色 + 过零点线)
     const getGSPlot = () => {
         const bg: any[] = []; const chr = ['1','2','3','4','5','6','7']; let x = 0;
         chr.forEach(c => { for(let i=0;i<150;i++) bg.push([x+Math.random()*1000, (Math.random()-0.5)*0.02, c]); x+=1200; })
@@ -203,7 +192,6 @@ function FlowCanvasInner() {
         }
     }
 
-    // 4. PCA 降维图
     const getPCA = () => ({
         grid: { top: 20, right: 20, bottom: 40, left: 40 }, xAxis: { name: 'PC1 (42%)', nameLocation: 'middle', nameGap: 25 }, yAxis: { name: 'PC2 (18%)' },
         series: [
@@ -212,20 +200,19 @@ function FlowCanvasInner() {
         ]
     })
 
-    // 5. QQ 模型校验图 (算法模拟真实形态：前端沿对角线，尾部上翘)
     const getQQPlot = () => {
         const data: any[] = [];
         for(let i=0; i<150; i++) {
             const exp = Math.random() * 4;
-            let obs = exp + (Math.random() - 0.5) * 0.3; // 贴合期望线
-            if (exp > 3.2) obs += Math.random() * 2;     // 尾部上翘 (真实的极端显著位点)
+            let obs = exp + (Math.random() - 0.5) * 0.3;
+            if (exp > 3.2) obs += Math.random() * 2;
             data.push([exp, obs]);
         }
         return {
             grid: { top: 20, right: 20, bottom: 40, left: 40 }, xAxis: { name: 'Expected -log10(P)', nameLocation: 'middle', nameGap: 25 }, yAxis: { name: 'Observed -log10(P)' },
             series: [
                 { type: 'scatter', symbolSize: 5, data, itemStyle: { color: '#0067C0', opacity: 0.8 } },
-                { type: 'line', data: [[0,0], [5,5]], lineStyle: { color: '#D13438', type: 'dashed', width: 2 }, silent: true } // 完美的 y=x 对角线
+                { type: 'line', data: [[0,0], [5,5]], lineStyle: { color: '#D13438', type: 'dashed', width: 2 }, silent: true }
             ]
         }
     }
@@ -233,7 +220,6 @@ function FlowCanvasInner() {
     return (
         <div style={{ display: 'flex', height: '100%', margin: '-32px -40px' }}>
 
-            {/* 左侧节点仓库 (背景提亮优化) */}
             <aside style={{ width: '260px', backgroundColor: 'var(--win-main-bg)', borderRight: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--win-border)' }}><h2 style={{ fontSize: '16px', fontWeight: 600, margin: 0 }}>节点仓库</h2></div>
                 <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto' }}>
@@ -248,11 +234,9 @@ function FlowCanvasInner() {
                 </div>
             </aside>
 
-            {/* 右侧画布与控制栏 */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '24px', left: '24px', right: '24px', zIndex: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', padding: '12px 24px', borderRadius: '12px', boxShadow: 'var(--win-shadow)', border: '1px solid var(--win-border)' }}>
 
-                    {/* 工作流命名输入框 */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <Edit2 size={16} color="var(--win-text-secondary)" />
                         <input
@@ -275,7 +259,6 @@ function FlowCanvasInner() {
                 </div>
             </div>
 
-            {/* 动态弹窗 */}
             {showReport && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <div style={{ width: '960px', height: '80vh', backgroundColor: 'var(--win-main-bg)', borderRadius: '12px', display: 'flex', flexDirection: 'column' }}>

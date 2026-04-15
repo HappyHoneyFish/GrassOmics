@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAppStore, ReportInfo } from '../store'
-import {Plus, BookOpen, Clock, ChevronRight, FileText, CheckCircle2, X, Activity, Trash2} from 'lucide-react'
+import {Plus, BookOpen, Clock, FileText, CheckCircle2, X, Activity, Trash2} from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function Dashboard() {
@@ -19,7 +19,6 @@ export default function Dashboard() {
         else setGreeting('晚上好')
     }, [])
 
-    // 辅助函数：根据报告类型返回不同的颜色和图标
     const getReportBadge = (type: string) => {
         switch (type) {
             case 'Workflow': return { color: '#881798', bg: '#F9EFFF', text: '工作流' }
@@ -33,7 +32,6 @@ export default function Dashboard() {
     return (
         <div style={{ maxWidth: '1000px', margin: '0 auto', animation: 'fadeIn 0.5s ease', paddingBottom: '40px' }}>
 
-            {/* 顶部欢迎区 */}
             <div style={{
                 marginBottom: '40px', marginTop: '24px',
                 paddingBottom: '24px', borderBottom: '1px solid var(--win-border)'
@@ -70,7 +68,6 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* 历史报告纵向列表区 */}
             <div>
                 <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--win-text-secondary)', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     最近的历史报告
@@ -86,7 +83,6 @@ export default function Dashboard() {
                                     className="report-list-item"
                                     onClick={() => setSelectedReport(report)}
                                 >
-                                    {/* 左侧：图标与标题信息 */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1 }}>
                                         <div style={{ width: '40px', height: '40px', borderRadius: '8px', backgroundColor: badge.bg, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                             <Activity size={20} color={badge.color} />
@@ -104,13 +100,11 @@ export default function Dashboard() {
                                         </div>
                                     </div>
 
-                                    {/* 右侧：时间与操作区 */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <span style={{ fontSize: '12px', color: '#999999', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Clock size={14} /> {report.date}
                     </span>
 
-                                        {/* 阻止事件冒泡，防止点击删除时弹出报告 */}
                                         <button
                                             onClick={(e) => { e.stopPropagation(); useAppStore.getState().removeReport(report.id); }}
                                             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#CCCCCC', transition: 'color 0.2s' }}
@@ -132,7 +126,6 @@ export default function Dashboard() {
                 )}
             </div>
 
-            {/* ================= 报告弹窗 (Modal) ================= */}
             {selectedReport && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99999,
@@ -180,7 +173,6 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* 首页专属精美 CSS */}
             <style>{`
         .action-btn { display: flex; align-items: center; gap: 16px; padding: 20px 24px; border-radius: 12px; border: 1px solid var(--win-border); background-color: var(--win-card); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); width: 340px; text-align: left; }
         .action-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); }

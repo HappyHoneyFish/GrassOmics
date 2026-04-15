@@ -6,7 +6,6 @@
     flex-direction: column;
 }
 
-/* 统一 Win11 风格优美滚动条 */
 .win-scroll {
     overflow-y: auto;
 }

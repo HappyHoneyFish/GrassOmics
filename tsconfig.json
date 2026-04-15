@@ -6,7 +6,6 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* 解决报错的核心配置：使用最新的 bundler 模块解析 */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
@@ -14,7 +13,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* 严格模式与路径别名 */
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

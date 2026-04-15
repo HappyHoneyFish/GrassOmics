@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Handle, Position, NodeProps } from 'reactflow'
-import { Database, Cpu, Microscope, CheckCircle2, AlertCircle, Settings2, FolderOpen } from 'lucide-react'
+import { Database, Cpu, Microscope, CheckCircle2, Settings2, FolderOpen } from 'lucide-react'
 import { useAppStore } from '../../store'
 
 export interface BlueprintNodeData {
@@ -83,7 +83,6 @@ const BlueprintNode = ({ id, data, selected }: NodeProps<BlueprintNodeData>) => 
                                     <input type="number" value={ctrl.value} className="blueprint-control nodrag" onChange={(e) => data.onControlChange && data.onControlChange(id, ctrl.id, parseFloat(e.target.value))} />
                                 )}
 
-                                {/* ===== 核心：新增的文本输入框 (GWAS列名) ===== */}
                                 {ctrl.type === 'text' && (
                                     <input type="text" value={ctrl.value} placeholder={ctrl.placeholder} className="blueprint-control nodrag" onChange={(e) => data.onControlChange && data.onControlChange(id, ctrl.id, e.target.value)} />
                                 )}

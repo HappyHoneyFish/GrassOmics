@@ -4,13 +4,11 @@ import { GitBranch, Play, FileUp, CheckCircle2, Compass } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import EmptyState from '../components/EmptyState'
 
-// 定义 Python 返回的数据接口
 interface CircosResult {
     karyotype_file: string;
     links_file: string;
     chromosome_count: number;
     valid_homologous_links: number;
-    // 前端渲染所需的模拟结构数据
     chart_nodes: { name: string; group: string }[];
     chart_links: { source: string; target: string; weight: number }[];
     top_pairs: { GeneA: string; GeneB: string; ChrA: string; ChrB: string; Identity: number }[];
@@ -19,14 +17,12 @@ interface CircosResult {
 export default function CircosAnalysis() {
     const { setGlobalLoading, showToast } = useAppStore()
 
-    // 1. 模块独立的数据状态 (去全局化)
     const [bedFile, setBedFile] = useState<{ name: string; path: string } | null>(null)
     const [homologyFile, setHomologyFile] = useState<{ name: string; path: string } | null>(null)
     const [result, setResult] = useState<CircosResult | null>(null)
 
     const isReady = bedFile && homologyFile
 
-    // 独立的文件上传处理函数
     const handleUploadFile = async (type: 'bed' | 'csv') => {
         try {
             const res = await window.api.openFileDialog({
@@ -53,23 +49,18 @@ export default function CircosAnalysis() {
             })
 
             if (response.status === 'success') {
-                // --- 模拟生成前端 Echarts 环形图所需的染色体和连线数据 ---
-                // 假设我们有亚基因组 A 和 B，各 7 条染色体
                 const subA = Array.from({length: 7}, (_, i) => `Chr${i+1}A`)
                 const subB = Array.from({length: 7}, (_, i) => `Chr${i+1}B`)
                 const mockNodes = [...subA, ...subB].map(name => ({ name, group: name.endsWith('A') ? 'SubA' : 'SubB' }))
 
-                // 模拟同源染色体间的共线性连线 (绝大部分连线发生在 1A-1B, 2A-2B 之间)
                 const mockLinks: { source: string; target: string; weight: number }[] = []
                 for(let i=1; i<=7; i++) {
-                    for(let j=0; j<15; j++) mockLinks.push({ source: `Chr${i}A`, target: `Chr${i}B`, weight: Math.random() }) // 主共线性
+                    for(let j=0; j<15; j++) mockLinks.push({ source: `Chr${i}A`, target: `Chr${i}B`, weight: Math.random() })
                 }
                 for(let i=0; i<20; i++) {
-                    // 模拟少量的染色体易位 (Translocation) 散乱连线
                     mockLinks.push({ source: subA[Math.floor(Math.random()*7)], target: subB[Math.floor(Math.random()*7)], weight: Math.random() * 0.5 })
                 }
 
-                // 模拟 Top 基因对表格
                 const mockPairs = Array.from({length: 5}, (_, i) => ({
                     GeneA: `Medtr${Math.floor(Math.random()*9)}g${Math.floor(Math.random()*99999)}`,
                     GeneB: `Medtr${Math.floor(Math.random()*9)}g${Math.floor(Math.random()*99999)}`,
@@ -93,16 +84,14 @@ export default function CircosAnalysis() {
         }
     }
 
-    // 2. 构造 Echarts 环形共线性图 (模拟 Circos)
     const getCircosOption = () => {
         if (!result) return {}
 
-        // 染色体区块颜色体系区分亚基因组
         const colorMap = { SubA: '#0067C0', SubB: '#107C10' }
 
         const nodes = result.chart_nodes.map(node => ({
             name: node.name,
-            symbolSize: 20, // 节点大小
+            symbolSize: 20,
             itemStyle: { color: colorMap[node.group as keyof typeof colorMap] }
         }))
 
@@ -111,8 +100,8 @@ export default function CircosAnalysis() {
             target: link.target,
             lineStyle: {
                 width: link.weight > 0.8 ? 2 : 0.5,
-                color: link.source.replace('A', '') === link.target.replace('B', '') ? '#0067C0' : '#D13438', // 主同源显蓝色，易位显红色
-                curveness: 0.3, // 贝塞尔曲线弧度，模拟 Circos 的内部连线
+                color: link.source.replace('A', '') === link.target.replace('B', '') ? '#0067C0' : '#D13438',
+                curveness: 0.3,
                 opacity: link.weight > 0.8 ? 0.6 : 0.2
             }
         }))
@@ -126,7 +115,7 @@ export default function CircosAnalysis() {
             },
             legend: [{
                 data: result.chart_nodes.map(a => a.name),
-                show: false // 隐藏图例，保持画面干净
+                show: false
             }],
             animationDurationUpdate: 1500,
             animationEasingUpdate: 'quinticInOut',
@@ -134,11 +123,11 @@ export default function CircosAnalysis() {
                 {
                     name: 'Synteny Circos',
                     type: 'graph',
-                    layout: 'circular', // 核心：强制环形布局！
+                    layout: 'circular',
                     circular: { rotateLabel: true },
                     data: nodes,
                     links: edges,
-                    roam: true, // 允许鼠标缩放和平移
+                    roam: true,
                     label: { show: true, position: 'right', formatter: '{b}', fontSize: 11, color: 'var(--win-text)' },
                     lineStyle: { color: 'source', curveness: 0.3 }
                 }
@@ -155,14 +144,12 @@ export default function CircosAnalysis() {
                     基因结构与共线性 (Synteny & Circos)
                 </h2>
                 <p style={{ color: 'var(--win-text-secondary)', margin: 0, fontSize: '13px' }}>
-                    提取多倍体亚基因组间的同源区间，进行空间坐标映射，并在前端渲染高交互环形共线性网络。
+                    提取多倍体亚基因组间的同源区间，进行空间坐标映射，并渲染环形共线性网络。
                 </p>
             </div>
 
-            {/* 核心工作区：严格的左右切分版式 */}
             <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
 
-                {/* ================= 左侧：参数与数据输入面板 (固定 340px) ================= */}
                 <div style={{ width: '340px', backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)', border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
 
                     <div style={{ padding: '20px', borderBottom: '1px solid var(--win-border)' }}>
@@ -191,10 +178,9 @@ export default function CircosAnalysis() {
                     </div>
                 </div>
 
-                {/* ================= 右侧：可视化图表与结果舞台 (自适应填充) ================= */}
                 <div style={{ flex: 1, backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)', border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', padding: '24px', overflowY: 'auto' }}>
                     {!result ? (
-                        <EmptyState title="等待共线性映射" desc="导入 BED 坐标与基因网络后，此处将渲染可缩放旋转的 Echarts 环形网络图 (模拟 Circos)。" />
+                        <EmptyState title="等待共线性映射" desc="导入 BED 坐标与基因网络后，此处将渲染可缩放旋转的 Echarts 环形网络图" />
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.5s ease' }}>
 
@@ -210,7 +196,6 @@ export default function CircosAnalysis() {
                                 </div>
                             </div>
 
-                            {/* Echarts 环形网络图渲染 */}
                             <div style={{ height: '400px', border: '1px solid var(--win-border)', borderRadius: '8px', marginBottom: '32px', backgroundColor: '#FAFAFA' }}>
                                 <ReactECharts option={getCircosOption()} style={{ height: '100%', width: '100%' }} />
                             </div>

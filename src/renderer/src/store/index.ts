@@ -1,7 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-// 定义历史报告的数据结构
 export interface ReportInfo {
     id: string;
     title: string;
@@ -16,18 +15,17 @@ interface AppState {
     loadingText: string;
     toast: { show: boolean; message: string; type: 'success' | 'error' | 'info' | 'warning' };
 
-    // 存储历史分析报告
     recentReports: ReportInfo[];
 
     setGlobalLoading: (loading: boolean, text?: string) => void;
     showToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
     hideToast: () => void;
-    // 新增：写入新报告的方法
+
     addReport: (report: ReportInfo) => void;
     removeReport: (id: string) => void;
 }
 
-// 预设的高质量占位报告 (在没有真实报告时撑起门面)
+// 预设的高质量占位报告 ，在没有真实报告时撑起门面
 const defaultReports: ReportInfo[] = [
     {
         id: 'r1', title: '紫花苜蓿抗旱多组学联合分析', date: '今天 14:30', type: 'Workflow',
@@ -47,14 +45,12 @@ const defaultReports: ReportInfo[] = [
 ]
 
 export const useAppStore = create<AppState>()(
-    // 使用 persist 中间件包裹，实现本地安全持久化
     persist(
         (set) => ({
             globalLoading: false,
             loadingText: '',
             toast: { show: false, message: '', type: 'info' },
 
-            // 初始加载预设报告
             recentReports: defaultReports,
 
             setGlobalLoading: (loading, text = '算法引擎全速运算中...') => set({ globalLoading: loading, loadingText: text }),
@@ -67,7 +63,6 @@ export const useAppStore = create<AppState>()(
             },
             hideToast: () => set((state) => ({ toast: { ...state.toast, show: false } })),
 
-            // 核心动作：将新报告插入到列表最前面
             addReport: (report) => set((state) => ({
                 recentReports: [report, ...state.recentReports]
             })),
@@ -76,8 +71,7 @@ export const useAppStore = create<AppState>()(
             }))
         }),
         {
-            name: 'grassomics-report-storage', // 持久化的命名空间
-            // 关键：我们只把 recentReports 存入硬盘，像 globalLoading 这种界面状态不需要存
+            name: 'grassomics-report-storage',
             partialize: (state) => ({ recentReports: state.recentReports }),
         }
     )

@@ -4,7 +4,6 @@ import { Layers, Activity, Droplets, Network, Play, FileUp, CheckCircle2 } from 
 import ReactECharts from 'echarts-for-react'
 import EmptyState from '../components/EmptyState'
 
-// --- 结果类型定义 ---
 interface TransResult { volcano_file: string; heatmap_file: string; total_genes: number; significant_genes_count: number; }
 interface MetaboResult { scores_file: string; vip_file: string; top_vip_metabolites: { Metabolite: string; VIP_Score: number }[]; }
 interface ProtResult { nodes_file: string; edges_file: string; nodes_count: number; edges_count: number; }
@@ -13,22 +12,18 @@ export default function MultiOmics() {
     const { setGlobalLoading, showToast } = useAppStore()
     const [activeTab, setActiveTab] = useState<'trans' | 'metabo' | 'prot'>('trans')
 
-    // --- 转录组状态 ---
     const [transExprFile, setTransExprFile] = useState<{ name: string; path: string } | null>(null)
     const [transGroupFile, setTransGroupFile] = useState<{ name: string; path: string } | null>(null)
     const [transResult, setTransResult] = useState<TransResult | null>(null)
 
-    // --- 代谢组状态 ---
     const [metaboAbundFile, setMetaboAbundFile] = useState<{ name: string; path: string } | null>(null)
     const [metaboGroupFile, setMetaboGroupFile] = useState<{ name: string; path: string } | null>(null)
     const [metaboResult, setMetaboResult] = useState<MetaboResult | null>(null)
 
-    // --- 蛋白组状态 ---
     const [protAbundFile, setProtAbundFile] = useState<{ name: string; path: string } | null>(null)
     const [corrThreshold, setCorrThreshold] = useState<number>(0.8)
     const [protResult, setProtResult] = useState<ProtResult | null>(null)
 
-    // --- 通用文件上传 ---
     const handleUploadFile = async (setter: Function, type: string) => {
         try {
             const res = await window.api.openFileDialog({
@@ -41,9 +36,7 @@ export default function MultiOmics() {
         } catch (e) { showToast('文件读取失败', 'error') }
     }
 
-    // ==========================================
-    // 1. 转录组引擎与图表渲染
-    // ==========================================
+
     const runTrans = async () => {
         if (!transExprFile || !transGroupFile) return
         setGlobalLoading(true, '正在执行 T-test 与 FDR 矫正，渲染火山图...')
@@ -58,11 +51,10 @@ export default function MultiOmics() {
 
     const getVolcanoOption = () => {
         if (!transResult) return {}
-        // 模拟前端火山图数据分布 (X: Log2FC, Y: -log10(P))
         const upData: any[] = [], downData: any[] = [], nonSigData: any[] = []
         for(let i=0; i<800; i++) {
             const x = (Math.random() - 0.5) * 8
-            const y = Math.random() * 6 - Math.abs(x) * 0.2 // 产生火山形状
+            const y = Math.random() * 6 - Math.abs(x) * 0.2
             if (y < 0) continue
             if (x > 1 && y > 1.3) upData.push([x, y])
             else if (x < -1 && y > 1.3) downData.push([x, y])
@@ -83,9 +75,6 @@ export default function MultiOmics() {
         }
     }
 
-    // ==========================================
-    // 2. 代谢组引擎与图表渲染
-    // ==========================================
     const runMetabo = async () => {
         if (!metaboAbundFile || !metaboGroupFile) return
         setGlobalLoading(true, '正在构建 PLS-DA 空间降维模型...')
@@ -100,7 +89,6 @@ export default function MultiOmics() {
 
     const getPlsdaOption = () => {
         if (!metaboResult) return {}
-        // 模拟 PLS-DA 两组样本的聚类散点
         const groupA: any[] = [], groupB: any[] = []
         for(let i=0; i<30; i++) {
             groupA.push([Math.random() * 4 - 5, Math.random() * 6 - 3])
@@ -119,9 +107,6 @@ export default function MultiOmics() {
         }
     }
 
-    // ==========================================
-    // 3. 蛋白组引擎与图表渲染
-    // ==========================================
     const runProt = async () => {
         if (!protAbundFile) return
         setGlobalLoading(true, '正在计算 Pearson 相关性与拓扑网络...')
@@ -136,7 +121,6 @@ export default function MultiOmics() {
 
     const getNetworkOption = () => {
         if (!protResult) return {}
-        // 模拟 Echarts 关系图数据
         const nodes = Array.from({length: 40}).map((_, i) => ({ id: `${i}`, name: `Prot_${i}`, symbolSize: Math.random() * 20 + 10, itemStyle: { color: i%3===0 ? '#D13438' : '#0067C0' } }))
         const edges = Array.from({length: 60}).map(() => ({ source: `${Math.floor(Math.random()*40)}`, target: `${Math.floor(Math.random()*40)}` }))
 
@@ -152,7 +136,6 @@ export default function MultiOmics() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.4s ease' }}>
-            {/* 头部标题与 Win11 风格 Tab */}
             <div style={{ marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: 600, margin: '0 0 12px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Layers size={24} color="var(--win-accent)" />
@@ -166,10 +149,8 @@ export default function MultiOmics() {
                 </div>
             </div>
 
-            {/* 核心工作区：严格的左右切分 */}
             <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
 
-                {/* ================= 左侧：动态参数面板 (340px) ================= */}
                 <div style={{
                     width: '340px', backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)',
                     border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', overflowY: 'auto'
@@ -240,10 +221,8 @@ export default function MultiOmics() {
                     )}
                 </div>
 
-                {/* ================= 右侧：可视化图表大舞台 (自适应填充) ================= */}
                 <div style={{ flex: 1, backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)', border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', padding: '24px' }}>
 
-                    {/* 转录组结果渲染 */}
                     {activeTab === 'trans' && !transResult && <EmptyState title="差异基因火山图 (Volcano Plot)" desc="导入表达矩阵与分组后，此处将渲染高精度的双向阈值火山图与显著基因统计。" />}
                     {activeTab === 'trans' && transResult && (
                         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.5s ease' }}>
@@ -259,7 +238,6 @@ export default function MultiOmics() {
                         </div>
                     )}
 
-                    {/* 代谢组结果渲染 */}
                     {activeTab === 'metabo' && !metaboResult && <EmptyState title="PLS-DA 降维散点图" desc="导入代谢丰度矩阵，提取高重要性 (VIP) 标志物，直观展示组间距离差异。" />}
                     {activeTab === 'metabo' && metaboResult && (
                         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.5s ease' }}>
@@ -284,7 +262,6 @@ export default function MultiOmics() {
                         </div>
                     )}
 
-                    {/* 蛋白组结果渲染 */}
                     {activeTab === 'prot' && !protResult && <EmptyState title="蛋白质共表达网络图 (PPI)" desc="计算特征向量，通过弹性物理引擎渲染动态力导向拓扑网络。" />}
                     {activeTab === 'prot' && protResult && (
                         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.5s ease' }}>

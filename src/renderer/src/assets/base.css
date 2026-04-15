@@ -1,5 +1,4 @@
 :root {
-    /* Win11 现代极简色彩系统 - 深度重构版 */
     --win-sidebar-bg: #F3F3F3;  /* 侧边栏及标题栏浅灰底色 */
     --win-main-bg: #FFFFFF;     /* 右侧工作区纯白底色 */
 
@@ -9,7 +8,7 @@
     --win-text: #333333;        /* 主文本色 */
     --win-text-secondary: #5C5C5C; /* 次要文本色 */
 
-    --win-accent: #0067C0;      /* Win11 经典强调蓝 */
+    --win-accent: #0067C0;      /* 这个模仿的Win11 强调蓝 */
     --win-accent-hover: #005A9E;
 
     --win-border: #E5E5E5;      /* 细边框色 */
@@ -21,7 +20,7 @@
 body {
     margin: 0;
     padding: 0;
-    /* 整个网页的基础底色先设为白色，具体分割在 Layout 里做 */
+    /* 注意注意，整个网页的基础底色先设为白色，具体分割在 Layout 里做 */
     background-color: var(--win-main-bg);
     color: var(--win-text);
     font-family: "Segoe UI", "Microsoft YaHei", -apple-system, sans-serif;
@@ -30,7 +29,6 @@ body {
     overflow: hidden;
 }
 
-/* 沉浸式标题栏的隐形拖拽区域 */
 .titlebar-drag-region {
     -webkit-app-region: drag;
     height: 40px;

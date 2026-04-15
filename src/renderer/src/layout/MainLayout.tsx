@@ -21,14 +21,12 @@ export default function MainLayout() {
     return (
         <div style={{ display: 'flex', height: '100vh', backgroundColor: 'var(--win-sidebar-bg)' }}>
 
-            {/* 左侧导航栏 */}
             <aside style={{ width: '240px', backgroundColor: 'var(--win-sidebar-bg)', display: 'flex', flexDirection: 'column', paddingTop: '40px', zIndex: 10 }}>
 
-                {/* ======== 美化后的 Logo 区域 ======== */}
                 <div style={{ padding: '20px 24px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{
                         width: '32px', height: '32px', borderRadius: '8px',
-                        background: 'linear-gradient(135deg, #107C10, #0067C0)', // 生物绿到数据蓝的渐变
+                        background: 'linear-gradient(135deg, #107C10, #0067C0)', // 配色的独特设计~生物绿到数据蓝的渐变
                         display: 'flex', justifyContent: 'center', alignItems: 'center',
                         boxShadow: '0 4px 10px rgba(16, 124, 16, 0.3)'
                     }}>
@@ -39,7 +37,7 @@ export default function MainLayout() {
                             GrassOmics
                         </h1>
                         <p style={{ fontSize: '11px', color: 'var(--win-text-secondary)', margin: '2px 0 0 0' }}>
-                            专业牧草生信工作站
+                            牧草生信工作站
                         </p>
                     </div>
                 </div>
@@ -54,7 +52,7 @@ export default function MainLayout() {
                 </nav>
             </aside>
 
-            {/* 右侧主内容舞台 */}
+
             <main style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--win-main-bg)', borderTopLeftRadius: '12px', boxShadow: '-4px 0 16px rgba(0,0,0,0.03)', marginTop: '40px', overflow: 'hidden' }}>
                 <div className="win-scroll" style={{ flex: 1, padding: '32px 40px' }}>
                     <Outlet />

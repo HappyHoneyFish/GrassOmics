@@ -5,12 +5,10 @@
     "module": "NodeNext",
     "skipLibCheck": true,
 
-    /* 解决 vite.config.ts 报错的核心配置 */
     "moduleResolution": "NodeNext",
     "isolatedModules": true,
     "strict": true,
 
-    /* 编译输出设置 */
     "outDir": "dist/main",
     "rootDir": "src",
     "noEmit": false

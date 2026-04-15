@@ -4,7 +4,6 @@ import { Target, Play, FileUp, CheckCircle2, Cpu } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import EmptyState from '../components/EmptyState'
 
-// 定义 Python 返回的数据接口
 interface GSResult {
     prediction_file: string;
     effect_file: string;
@@ -16,14 +15,12 @@ interface GSResult {
 export default function GSAnalysis() {
     const { setGlobalLoading, showToast } = useAppStore()
 
-    // 1. 模块独立的数据状态 (去全局化)
     const [vcfFile, setVcfFile] = useState<{ name: string; path: string } | null>(null)
     const [phenoFile, setPhenoFile] = useState<{ name: string; path: string } | null>(null)
     const [result, setResult] = useState<GSResult | null>(null)
 
     const isReady = vcfFile && phenoFile
 
-    // 独立的文件上传处理函数
     const handleUploadFile = async (type: 'vcf' | 'csv') => {
         try {
             const res = await window.api.openFileDialog({
@@ -60,7 +57,6 @@ export default function GSAnalysis() {
         }
     }
 
-    // 2. 构造标记效应权重散点图渲染配置 (Echarts)
     const getMarkerEffectOption = () => {
         if (!result) return {}
         const backgroundData: any[] = []
@@ -72,7 +68,6 @@ export default function GSAnalysis() {
         })
         const highlightData = result.top_effects.map(hit => [ parseInt(hit.CHROM) * 1200 - 600 + (hit.POS % 1000), hit.Effect_Weight, hit.CHROM, hit.ID ])
 
-        // Science 常用冷暖分组色盘
         const aaasPalette = ['#3B4992', '#EE0000', '#008B45', '#631879', '#008280', '#BB0021', '#5F559B']
 
         return {
@@ -83,7 +78,6 @@ export default function GSAnalysis() {
             visualMap: { type: 'piecewise', show: false, dimension: 2, categories: chromosomes, inRange: { color: aaasPalette } },
             series: [
                 { name: 'Background', type: 'scatter', symbolSize: 4, data: backgroundData, itemStyle: { opacity: 0.5 }, silent: true },
-                // 高亮位点使用耀眼的金色带阴影
                 { name: 'Top Effects', type: 'scatter', symbolSize: 12, data: highlightData, itemStyle: { color: '#FFB900', borderColor: '#FFFFFF', borderWidth: 1.5, shadowBlur: 10, shadowColor: 'rgba(255, 185, 0, 0.6)' }, zlevel: 1 },
                 { type: 'line', markLine: { data: [{ yAxis: 0 }], lineStyle: { color: '#333333', type: 'solid', width: 1.5 }, symbol: ['none', 'none'] } }
             ]
@@ -92,7 +86,6 @@ export default function GSAnalysis() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.4s ease' }}>
-            {/* 头部标题区 */}
             <div style={{ marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: 600, margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Target size={24} color="var(--win-accent)" />
@@ -103,15 +96,12 @@ export default function GSAnalysis() {
                 </p>
             </div>
 
-            {/* 核心工作区：严格的左右切分版式 */}
             <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
 
-                {/* ================= 左侧：参数与数据输入面板 (固定 340px) ================= */}
                 <div style={{
                     width: '340px', backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)',
                     border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', overflowY: 'auto'
                 }}>
-                    {/* 数据挂载区 */}
                     <div style={{ padding: '20px', borderBottom: '1px solid var(--win-border)' }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <Cpu size={16} color="var(--win-text-secondary)" /> 数据输入
@@ -133,7 +123,6 @@ export default function GSAnalysis() {
                         </div>
                     </div>
 
-                    {/* 引擎配置区 */}
                     <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 12px 0' }}>引擎说明</h3>
                         <p style={{ fontSize: '12px', color: 'var(--win-text-secondary)', lineHeight: 1.6, marginBottom: '24px', flex: 1 }}>
@@ -151,7 +140,6 @@ export default function GSAnalysis() {
                     </div>
                 </div>
 
-                {/* ================= 右侧：可视化图表与结果舞台 (自适应填充) ================= */}
                 <div style={{
                     flex: 1, backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)',
                     border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', padding: '24px'
@@ -161,7 +149,6 @@ export default function GSAnalysis() {
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.5s ease' }}>
 
-                            {/* 顶部统计 Badge */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px' }}>
                                 <h3 style={{ fontSize: '16px', fontWeight: 600, margin: 0 }}>全基因组标记效应分布</h3>
                                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -174,7 +161,6 @@ export default function GSAnalysis() {
                                 </div>
                             </div>
 
-                            {/* Echarts 标记效应渲染 */}
                             <div style={{ height: '320px', border: '1px solid var(--win-border)', borderRadius: '8px', marginBottom: '24px' }}>
                                 <ReactECharts option={getMarkerEffectOption()} style={{ height: '100%', width: '100%' }} />
                             </div>
@@ -203,7 +189,6 @@ export default function GSAnalysis() {
                 </div>
             </div>
 
-            {/* 局部共享 CSS (复用 GWAS 的样式) */}
             <style>{`
         .win-run-btn {
           width: 100%; padding: 10px; border-radius: 6px; background-color: #CCCCCC; color: #FFFFFF;

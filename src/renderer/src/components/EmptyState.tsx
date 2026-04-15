@@ -7,7 +7,7 @@ interface EmptyStateProps {
 
 export default function EmptyState({
                                        title = '等待数据分析',
-                                       desc = '请在左侧配置参数并运行算法，此处将渲染高交互的可视化图表。'
+                                       desc = '请在左侧配置参数并运行算法，此处将渲染可交互的图表。'
                                    }: EmptyStateProps) {
     return (
         <div style={{

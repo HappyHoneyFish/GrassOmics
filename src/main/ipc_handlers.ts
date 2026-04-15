@@ -28,33 +28,31 @@ export function setupIpcHandlers() {
             let pythonScript: string
 
             if (isPackaged) {
-                // ██████ 生产环境：使用打包的便携 Python ██████
-                // resources/engine/python/python.exe
                 pythonExecutable = join(process.resourcesPath, 'engine', 'python', 'python.exe')
                 pythonScript = join(process.resourcesPath, 'engine', 'main.py')
-
-                console.log('[Python] 生产模式 - 便携Python路径:', pythonExecutable)
+                // 打包之后Python路径解析也成了问题，控制台输出log供排查
+                console.log('内嵌Python路径:', pythonExecutable)
             } else {
-                // ██████ 开发环境：使用 venv ██████
+                // 这几行没用了，后来开发的时候也用的内嵌Python3.11
                 const winVenvPath = join(__dirname, '../../../engine/venv/Scripts/python.exe')
                 const macVenvPath = join(__dirname, '../../../engine/venv/bin/python')
 
                 if (fs.existsSync(winVenvPath)) pythonExecutable = winVenvPath
                 else if (fs.existsSync(macVenvPath)) pythonExecutable = macVenvPath
-                else pythonExecutable = 'python' // 兜底
+                else pythonExecutable = 'python'
 
                 pythonScript = join(__dirname, '../../../engine/main.py')
-                console.log('[Python] 开发模式 - venv路径:', pythonExecutable)
+                console.log('venv路径:', pythonExecutable)
             }
 
-            console.log('[Python] 脚本路径:', pythonScript)
-            console.log('[Python] 脚本存在:', fs.existsSync(pythonScript))
-            console.log('[Python] Python存在:', fs.existsSync(pythonExecutable))
+            console.log('Python脚本路径:', pythonScript)
+            console.log('Python脚本存在:', fs.existsSync(pythonScript))
+            console.log('Python是否存在:', fs.existsSync(pythonExecutable))
 
             if (!fs.existsSync(pythonScript)) {
                 reject({
                     status: 'error',
-                    message: `引擎脚本未找到: ${pythonScript}`
+                    message: `脚本未找到: ${pythonScript}`
                 })
                 return
             }
@@ -106,6 +104,7 @@ export function setupIpcHandlers() {
                     }
                 } else {
                     reject({
+                        // 遇到的基本上都是这个情况
                         status: 'error',
                         message: `Python 异常退出 (Code: ${code})`,
                         detail: errorBuffer

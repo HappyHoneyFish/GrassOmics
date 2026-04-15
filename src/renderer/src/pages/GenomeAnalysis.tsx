@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAppStore } from '../store'
-import { Dna, Play, FileUp, CheckCircle2, ChevronRight } from 'lucide-react'
+import { Dna, Play, FileUp, CheckCircle2 } from 'lucide-react'
 import ReactECharts from 'echarts-for-react'
 import EmptyState from '../components/EmptyState'
 
@@ -13,7 +13,6 @@ interface GwasResult {
 export default function GenomeAnalysis() {
     const { setGlobalLoading, showToast } = useAppStore()
 
-    // 1. 模块独立的数据状态 (去全局化)
     const [vcfFile, setVcfFile] = useState<{ name: string; path: string } | null>(null)
     const [phenoFile, setPhenoFile] = useState<{ name: string; path: string } | null>(null)
 
@@ -23,7 +22,6 @@ export default function GenomeAnalysis() {
 
     const isReady = vcfFile && phenoFile && targetPheno.trim() !== ''
 
-    // 独立的文件上传处理函数
     const handleUploadFile = async (type: 'vcf' | 'csv') => {
         try {
             const res = await window.api.openFileDialog({
@@ -60,7 +58,6 @@ export default function GenomeAnalysis() {
         }
     }
 
-    // 2. 构造曼哈顿图渲染配置 (Echarts)
     const getManhattanOption = () => {
         if (!result) return {}
         const backgroundData: any[] = []
@@ -76,7 +73,6 @@ export default function GenomeAnalysis() {
             -Math.log10(hit.P_value + 1e-30), hit.CHR, hit.SNP, hit.P_value
         ])
 
-        // Nature 经典 7 色渐进调色盘
         const npgPalette = ['#E64B35', '#4DBBD5', '#00A087', '#3C5488', '#F39B7F', '#8491B4', '#91D1C2']
 
         return {
@@ -86,11 +82,10 @@ export default function GenomeAnalysis() {
             yAxis: { type: 'value', name: '-log10(P)', nameTextStyle: { fontWeight: 600 }, splitLine: { lineStyle: { type: 'dashed', color: '#EEEEEE' } } },
             visualMap: {
                 type: 'piecewise', show: false, dimension: 2, categories: chromosomes,
-                inRange: { color: npgPalette } // 应用 Nature 配色交替染色体
+                inRange: { color: npgPalette }
             },
             series: [
                 { name: 'Background', type: 'scatter', symbolSize: 5, data: backgroundData, itemStyle: { opacity: 0.75 }, silent: true },
-                // 显著位点使用带有光晕效果的亮红色
                 { name: 'Significant Hits', type: 'scatter', symbolSize: 14, data: highlightData, itemStyle: { color: '#DC0000', borderColor: '#FFFFFF', borderWidth: 1.5, shadowBlur: 12, shadowColor: 'rgba(220, 0, 0, 0.6)' }, zlevel: 1 },
                 { type: 'line', markLine: { data: [{ yAxis: 5, name: 'Threshold' }], lineStyle: { color: '#333333', type: 'dashed', width: 1.5 }, label: { formatter: 'Sig.', position: 'insideEndTop' } } }
             ]
@@ -99,26 +94,22 @@ export default function GenomeAnalysis() {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.4s ease' }}>
-            {/* 头部标题区 */}
             <div style={{ marginBottom: '24px' }}>
                 <h2 style={{ fontSize: '24px', fontWeight: 600, margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Dna size={24} color="var(--win-accent)" />
                     全基因组关联分析 (GWAS)
                 </h2>
                 <p style={{ color: 'var(--win-text-secondary)', margin: 0, fontSize: '13px' }}>
-                    独立模块：请直接导入矩阵并配置参数，结果将实时渲染为高交互曼哈顿图。
+                    导入矩阵并配置参数，结果将实时渲染为可交互曼哈顿图。
                 </p>
             </div>
 
-            {/* 核心工作区：严格的左右切分版式 */}
             <div style={{ display: 'flex', gap: '24px', flex: 1, minHeight: 0 }}>
 
-                {/* ================= 左侧：参数与数据输入面板 (固定 340px) ================= */}
                 <div style={{
                     width: '340px', backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)',
                     border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', overflowY: 'auto'
                 }}>
-                    {/* 数据挂载区 */}
                     <div style={{ padding: '20px', borderBottom: '1px solid var(--win-border)' }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 16px 0' }}>数据输入</h3>
 
@@ -138,7 +129,6 @@ export default function GenomeAnalysis() {
                         </div>
                     </div>
 
-                    {/* 参数配置区 */}
                     <div style={{ padding: '20px', flex: 1 }}>
                         <h3 style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 16px 0' }}>模型参数</h3>
 
@@ -174,23 +164,19 @@ export default function GenomeAnalysis() {
                     </div>
                 </div>
 
-                {/* ================= 右侧：可视化图表与结果舞台 (自适应填充) ================= */}
                 <div style={{
                     flex: 1, backgroundColor: 'var(--win-card)', borderRadius: 'var(--win-radius)',
                     border: '1px solid var(--win-border)', display: 'flex', flexDirection: 'column', padding: '24px'
                 }}>
                     {!result ? (
-                        // 空状态占位图
                         <EmptyState title="等待 GWAS 分析" desc="导入数据并点击运行后，此处将渲染高精度的曼哈顿图 (Manhattan Plot) 与显著性表格。" />
                     ) : (
-                        // 结果渲染区
                         <div style={{ display: 'flex', flexDirection: 'column', height: '100%', animation: 'fadeIn 0.5s ease' }}>
                             <h3 style={{ fontSize: '16px', fontWeight: 600, margin: '0 0 16px 0', display: 'flex', justifyContent: 'space-between' }}>
                                 <span>曼哈顿图 (Manhattan Plot)</span>
                                 <span style={{ fontSize: '12px', color: 'var(--win-text-secondary)', fontWeight: 400 }}>共扫描 {result.analyzed_snps_count.toLocaleString()} 个位点</span>
                             </h3>
 
-                            {/* Echarts 高维渲染 */}
                             <div style={{ height: '350px', border: '1px solid var(--win-border)', borderRadius: '8px', marginBottom: '24px' }}>
                                 <ReactECharts option={getManhattanOption()} style={{ height: '100%', width: '100%' }} />
                             </div>
@@ -219,7 +205,6 @@ export default function GenomeAnalysis() {
                 </div>
             </div>
 
-            {/* 局部共享 CSS */}
             <style>{`
         .win-input {
           width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--win-border); 
@@ -245,7 +230,6 @@ export default function GenomeAnalysis() {
     )
 }
 
-// 提取专属的上传按钮组件
 function DataUploadBtn({ type, file, onClick, desc }: any) {
     return (
         <div onClick={onClick} style={{
