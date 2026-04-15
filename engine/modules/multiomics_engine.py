@@ -14,9 +14,9 @@ from core.matrix_utils import load_matrix
 warnings.filterwarnings('ignore')
 
 
-# ==========================================
+
 # 1. 转录组分析 (Transcriptomics)
-# ==========================================
+
 def run_transcriptomics_pipeline(params: dict) -> dict:
     expr_file = params.get('expr_file')
     group_file = params.get('group_file')
@@ -91,9 +91,9 @@ def run_transcriptomics_pipeline(params: dict) -> dict:
     }
 
 
-# ==========================================
+
 # 2. 代谢组分析 (Metabolomics)
-# ==========================================
+
 def calculate_vips(model):
     t = model.x_scores_
     w = model.x_weights_
@@ -164,9 +164,9 @@ def run_metabolomics_plsda(params: dict) -> dict:
     }
 
 
-# ==========================================
+
 # 3. 蛋白组分析 (Proteomics)
-# ==========================================
+
 def run_proteomics_ppi_pipeline(params: dict) -> dict:
     abundance_file = params.get('abundance_file')
     output_dir = params.get('output_dir', './output')

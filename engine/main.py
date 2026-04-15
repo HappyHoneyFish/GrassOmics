@@ -2,7 +2,7 @@
 import sys
 import os
 
-# ██████ 打包环境路径修复 ██████
+# 打包环境路径问题的修复，这个地方特别特别容易出岔子！白屏好不容易解决了，Python路径又丢了
 # 确保能正确导入同级目录的 core 和 modules 模块
 # 无论从哪里调用（双击、命令行、Electron spawn），都能正确找到依赖
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,8 +14,7 @@ import json
 import traceback
 
 
-# 预留后续算法模块的导入位置 (随着我们逐个输出算法文件，这里会取消注释)
-from core.matrix_utils import load_matrix, clean_missing_data, write_results
+
 from modules.gwas_engine import run_gwas
 from modules.gs_engine import run_gs
 from modules.circos_engine import run_circos_pipeline
